@@ -12,5 +12,5 @@
   };
 
   isoImage.volumeID = lib.mkForce "ARCOS_WORKSTATION";
-  image.fileName = lib.mkForce "arcos-universal-v1.3.iso";
+  image.fileName = lib.mkForce "arcos-universal-v1.3.1.iso";
 }

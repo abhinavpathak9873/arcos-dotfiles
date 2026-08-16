@@ -9,18 +9,24 @@
 
 #arcos-overview {
   color: @foreground;
-  background: alpha(@background, 0.96);
+  background: transparent;
 }
 
-.overview-root {
-  padding: 54px 64px 42px;
+.overview-panel {
+  color: @foreground;
+  background: alpha(@background, 0.97);
+  border: 1px solid alpha(@border, 0.84);
+  border-radius: 28px;
+  box-shadow: 0 22px 70px alpha(black, 0.4);
+  padding: 26px 28px 24px;
 }
 
 .display-title {
   color: @foreground;
   font-family: "JetBrainsMono Nerd Font";
-  font-size: 32px;
-  font-weight: 750;
+  font-size: 25px;
+  font-weight: 800;
+  letter-spacing: -0.3px;
 }
 
 .subtitle,
@@ -34,9 +40,9 @@
 
 .section-title {
   color: @foreground;
-  font-size: 18px;
+  font-size: 15px;
   font-weight: 700;
-  margin-top: 4px;
+  margin-top: 2px;
 }
 
 .workspace-card,
@@ -50,8 +56,8 @@
 
 .workspace-card {
   min-width: 268px;
-  padding: 12px;
-  border-radius: 22px;
+  padding: 11px;
+  border-radius: 20px;
 }
 
 .workspace-card:hover,
@@ -76,7 +82,7 @@
 .workspace-preview {
   background: alpha(@background_alt, 0.9);
   border: 1px solid alpha(@border, 0.6);
-  border-radius: 14px;
+  border-radius: 13px;
 }
 
 .workspace-heading {
@@ -85,6 +91,13 @@
 }
 
 .app-row {
-  padding: 10px 14px;
-  border-radius: 15px;
+  padding: 9px 13px;
+  border-radius: 14px;
+}
+
+scrollbar slider {
+  min-width: 5px;
+  min-height: 34px;
+  background: alpha(@muted, 0.28);
+  border-radius: 999px;
 }

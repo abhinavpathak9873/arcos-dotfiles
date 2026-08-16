@@ -1,0 +1,115 @@
+--- a/src/bin/voxtype_osd_gtk4.rs
++++ b/src/bin/voxtype_osd_gtk4.rs
+@@ -319,6 +319,16 @@
+ /// Build the GTK window, attach layer-shell config, mount the DrawingArea,
+ /// and start the redraw tick.
+ fn build_window(app: &Application, cfg: &OsdConfig, palette: Palette, state: Arc<SharedState>) {
++    let css_provider = gtk4::CssProvider::new();
++    css_provider.load_from_data("window { background-color: transparent; }");
++    if let Some(display) = gtk4::gdk::Display::default() {
++        gtk4::style_context_add_provider_for_display(
++            &display,
++            &css_provider,
++            gtk4::STYLE_PROVIDER_PRIORITY_APPLICATION,
++        );
++    }
++
+     let window = ApplicationWindow::builder()
+         .application(app)
+         .default_width(cfg.width_px as i32)
+@@ -495,6 +495,26 @@
+     surface.set_input_region(Some(&empty));
+ }
+ 
++/// Add a continuous rounded rectangle to the current Cairo path. Keeping the
++/// window itself transparent lets the ArcOS dictation surface read as a small
++/// native Material pill instead of a rectangular application window.
++fn rounded_rect_path(cr: &Context, x: f64, y: f64, w: f64, h: f64, radius: f64) {
++    let r = radius.min(w * 0.5).min(h * 0.5);
++    let half_pi = std::f64::consts::FRAC_PI_2;
++    cr.new_sub_path();
++    cr.arc(x + w - r, y + r, r, -half_pi, 0.0);
++    cr.arc(x + w - r, y + h - r, r, 0.0, half_pi);
++    cr.arc(x + r, y + h - r, r, half_pi, std::f64::consts::PI);
++    cr.arc(
++        x + r,
++        y + r,
++        r,
++        std::f64::consts::PI,
++        std::f64::consts::PI + half_pi,
++    );
++    cr.close_path();
++}
++
+ /// Render the waveform + peak meter into the given Cairo context.
+ fn draw(
+     cr: &Context,
+@@ -510,25 +530,57 @@
+         return;
+     }
+ 
+-    // Clear background.
++    // Clear the complete buffer first so the rounded corners remain truly
++    // transparent when composited over the focused application.
++    cr.set_operator(cairo::Operator::Source);
++    cr.set_source_rgba(0.0, 0.0, 0.0, 0.0);
++    cr.paint().ok();
++    cr.set_operator(cairo::Operator::Over);
++
++    let shell_inset = 2.0;
++    let shell_w = (w - shell_inset * 2.0).max(0.0);
++    let shell_h = (h - shell_inset * 2.0).max(0.0);
++    rounded_rect_path(
++        cr,
++        shell_inset,
++        shell_inset,
++        shell_w,
++        shell_h,
++        shell_h * 0.5,
++    );
+     cr.set_source_rgba(
+         palette.background.r as f64,
+         palette.background.g as f64,
+         palette.background.b as f64,
+         palette.background.a as f64,
+     );
+-    cr.set_operator(cairo::Operator::Source);
+-    cr.paint().ok();
+-    cr.set_operator(cairo::Operator::Over);
++    cr.fill_preserve().ok();
++    cr.set_source_rgba(
++        palette.accent.r as f64,
++        palette.accent.g as f64,
++        palette.accent.b as f64,
++        0.46,
++    );
++    cr.set_line_width(1.0);
++    cr.stroke().ok();
++
++    let _ = cr.save();
++    rounded_rect_path(cr, shell_inset, shell_inset, shell_w, shell_h, shell_h * 0.5);
++    cr.clip();
+ 
+-    // Layout: waveform area on the left (~92% width), gap (1%), then peak
+-    // meter on the right (~7% width).
+-    let meter_width = (w * 0.07).max(8.0);
+-    let gap = (w * 0.01).max(2.0);
+-    let wave_width = (w - meter_width - gap).max(0.0);
++    // Comfortable pill padding keeps the live waveform and meter away from
++    // the curved edge while preserving a wide, immediately readable signal.
++    let pad_x = 16.0;
++    let pad_y = 8.0;
++    let content_w = (w - pad_x * 2.0).max(0.0);
++    let content_h = (h - pad_y * 2.0).max(0.0);
++    let meter_width = (content_w * 0.06).max(8.0);
++    let gap = (content_w * 0.025).max(6.0);
++    let wave_width = (content_w - meter_width - gap).max(0.0);
+ 
+-    draw_waveform(cr, 0.0, 0.0, wave_width, h, palette, state, gain);
+-    draw_peak_meter(cr, wave_width + gap, 0.0, meter_width, h, palette, state);
++    draw_waveform(cr, pad_x, pad_y, wave_width, content_h, palette, state, gain);
++    draw_peak_meter(cr, pad_x + wave_width + gap, pad_y, meter_width, content_h, palette, state);
++    let _ = cr.restore();
+ }
+ 
+ fn draw_waveform(

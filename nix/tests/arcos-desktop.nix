@@ -35,7 +35,11 @@ pkgs.testers.runNixOSTest {
       memorySize = 4096;
       cores = 4;
     };
-    environment.systemPackages = [ pkgs.imagemagick ];
+    environment.systemPackages = [
+      pkgs.espeak-ng
+      pkgs.imagemagick
+      pkgs.pulseaudio
+    ];
     system.stateVersion = "26.05";
   };
 
@@ -77,13 +81,13 @@ pkgs.testers.runNixOSTest {
     machine.fail("test -e /run/current-system/sw/bin/arcctl")
     machine.succeed("test -s /etc/keyd/default.conf")
 
-    for generated in ["theme.json", "waybar.css", "rofi.rasi", "mako.conf", "kitty.conf", "gtk.css", "nwg-drawer.css", "overview.css", "shortcuts.css", "gtklock.css", "swaync.css", "swayosd.css", "nwg-bar.css"]:
+    for generated in ["theme.json", "waybar.css", "rofi.rasi", "mako.conf", "kitty.conf", "gtk.css", "apps.css", "overview.css", "shortcuts.css", "gtklock.css", "swaync.css", "swayosd.css", "nwg-bar.css"]:
       machine.succeed(f"test -s /home/arc/.config/arcos-desktop/{generated}")
     machine.succeed("test -s /home/arc/.config/tmux/arcos-theme.conf")
     machine.succeed("test -s /home/arc/.config/nvim/arcos-theme.lua")
     machine.succeed("test -s /home/arc/.config/walker/config.toml")
     machine.succeed("test -s /home/arc/.config/walker/themes/arcos/style.css")
-    machine.succeed("test -s /home/arc/.config/nwg-drawer/drawer.css")
+    machine.succeed("test -s /home/arc/.config/omarchy/current/theme/colors.toml")
     machine.succeed("test -s /home/arc/.config/gtk-3.0/gtk.css")
     machine.succeed("test -s /home/arc/.config/gtk-4.0/gtk.css")
     machine.succeed("test -s /home/arc/.config/swaync/style.css")
@@ -113,6 +117,7 @@ pkgs.testers.runNixOSTest {
     machine.fail("grep -q '1:Main' /etc/sway/config")
     machine.fail("grep -q 'arcctl' /etc/sway/config")
     machine.succeed("grep -q '\"format\": \"󰀻  Applications\"' /etc/xdg/waybar/config.jsonc")
+    machine.succeed("grep -q '\"on-click\": \"arcos-apps\"' /etc/xdg/waybar/config.jsonc")
     machine.succeed("grep -q '\"format\": \"\"' /etc/xdg/waybar/config.jsonc")
     machine.fail("grep -q 'persistent-workspaces' /etc/xdg/waybar/config.jsonc")
     machine.succeed("grep -q '\"cpu\"' /etc/xdg/waybar/config.jsonc")
@@ -120,6 +125,11 @@ pkgs.testers.runNixOSTest {
     machine.succeed("grep -q '\"custom/gpu\"' /etc/xdg/waybar/config.jsonc")
     machine.succeed("grep -q '\"custom/caffeine\"' /etc/xdg/waybar/config.jsonc")
     machine.succeed("grep -q '\"group/tray-expander\"' /etc/xdg/waybar/config.jsonc")
+    machine.succeed(
+      "jq -e '.\"control-center-positionX\" == \"right\" and "
+      ".\"control-center-positionY\" == \"top\" and .positionX == \"center\"' "
+      "/etc/xdg/swaync/config.json"
+    )
     machine.succeed("test -d /run/current-system/sw/share/icons/Papirus-Dark")
     machine.succeed(user_env + "test \"$(${pkgs.dconf}/bin/dconf read /org/gnome/desktop/interface/icon-theme)\" = \"'Papirus-Dark'\"")
     machine.succeed("jq -e '.source == \"wallpaper\"' /home/arc/.config/arcos-desktop/theme.json")
@@ -183,6 +193,7 @@ pkgs.testers.runNixOSTest {
     # Typed Spotlight results launch normal desktop applications as well.
     machine.send_key("meta_l-1")
     machine.send_key("meta_l-spc")
+    machine.sleep(1)
     machine.send_chars("nautilus")
     machine.sleep(1)
     machine.send_key("ret")
@@ -202,22 +213,27 @@ pkgs.testers.runNixOSTest {
       sway_env + "swaymsg -r -t get_workspaces | jq -e '.[] | select(.focused and .num == 1)' >/dev/null",
       timeout=10,
     )
-    machine.succeed(sway_env + "swaymsg exec '${pkgs.nwg-drawer}/bin/nwg-drawer -c 7 -spacing 10 -is 56 -i Papirus-Dark -fm nautilus -term kitty -wm sway -s drawer.css'")
-    machine.wait_until_succeeds("pgrep -u arc -f '/nwg-drawer'", timeout=15)
-    machine.sleep(5)
-    machine.succeed("pgrep -u arc -f '/nwg-drawer'")
+    machine.send_key("meta_l-a")
+    machine.wait_until_succeeds("pgrep -u arc -f 'arcos-apps.py'", timeout=15)
+    machine.wait_until_succeeds("test -e /run/user/1000/arcos-apps.ready", timeout=15)
+    machine.sleep(1)
+    machine.log(machine.succeed("cat /run/user/1000/arcos-apps.log 2>/dev/null || true"))
+    machine.succeed("pgrep -u arc -f 'arcos-apps.py'")
     machine.screenshot("02-application-grid")
     machine.send_key("esc")
+    machine.wait_until_fails("pgrep -u arc -f 'arcos-apps.py'", timeout=10)
 
     # The two real windows above let the overview prove its cross-workspace
     # layout previews, grouped app rows, icons, and direct app targeting.
     machine.send_key("meta_l-w")
     machine.wait_until_succeeds("pgrep -u arc -f 'arcos-overview.py'", timeout=15)
-    machine.sleep(6)
+    machine.wait_until_succeeds("test -e /run/user/1000/arcos-overview.ready", timeout=15)
+    machine.sleep(1)
     machine.log(machine.succeed("cat /run/user/1000/arcos-overview.log 2>/dev/null || true"))
     machine.succeed("pgrep -u arc -f 'arcos-overview.py'")
     machine.screenshot("03-workspace-overview")
     machine.send_key("esc")
+    machine.wait_until_fails("pgrep -u arc -f 'arcos-overview.py'", timeout=10)
 
     machine.succeed(user_env + "notify-send 'ArcOS v1.3' 'Notifications stay below the panel and above your work'")
     machine.sleep(1)
@@ -227,6 +243,40 @@ pkgs.testers.runNixOSTest {
     machine.sleep(2)
     machine.screenshot("05-quick-controls")
     machine.send_key("meta_l-n")
+
+    # Exercise the real Voxtype daemon and GTK layer-shell waveform using a
+    # PipeWire virtual microphone. The screenshot is taken while speech is
+    # actively flowing, and the decoded result must be written afterwards.
+    machine.succeed(
+      "espeak-ng -s 125 -w /tmp/voxtype-demo.wav "
+      "'ArcOS dictation is listening and typing locally into the focused application'"
+    )
+    original_source = machine.succeed(user_env + "pactl get-default-source").strip()
+    dictation_sink = machine.succeed(
+      user_env
+      + "pactl load-module module-null-sink sink_name=voxtype_demo "
+      + "sink_properties=device.description=ArcOS_Dictation_Demo"
+    ).strip()
+    try:
+      machine.wait_until_succeeds(
+        user_env + "pactl get-source-mute voxtype_demo.monitor",
+        timeout=15,
+      )
+      machine.succeed(user_env + "pactl set-default-source voxtype_demo.monitor")
+      machine.succeed(user_env + "voxtype record start --file=/tmp/voxtype-demo.txt")
+      machine.succeed(
+        user_env
+        + "systemd-run --user --unit=voxtype-demo-audio --collect "
+        + "paplay --device=voxtype_demo /tmp/voxtype-demo.wav"
+      )
+      machine.sleep(1)
+      machine.screenshot("10-voxtype-dictation")
+      machine.sleep(4)
+      machine.succeed(user_env + "voxtype record stop", timeout=120)
+      machine.wait_until_succeeds("test -s /tmp/voxtype-demo.txt", timeout=120)
+    finally:
+      machine.succeed(user_env + f"pactl set-default-source {original_source}")
+      machine.succeed(user_env + f"pactl unload-module {dictation_sink}")
 
     machine.send_key("meta_l-esc")
     machine.log(machine.succeed("cat /run/user/1000/arcos-power-menu.log 2>/dev/null || true"))

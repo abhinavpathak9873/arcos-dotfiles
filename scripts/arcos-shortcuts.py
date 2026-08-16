@@ -48,7 +48,7 @@ SHORTCUTS = (
     Shortcut("Meta + R", "Enter resize mode; arrows resize; Enter exits", "Windows"),
     Shortcut("Meta + Q", "Close the focused window", "Windows"),
     Shortcut("Meta + Ctrl + L", "Lock the desktop", "System"),
-    Shortcut("Meta + N", "Open notifications and quick controls", "System"),
+    Shortcut("Meta + N", "Open Control Center and notifications", "System"),
     Shortcut("Meta + Escape", "Open the lock, suspend, restart, and power menu", "System"),
     Shortcut("Hold Caps Lock", "Dictate into the focused text field; release to transcribe", "Voice"),
     Shortcut("Ctrl + Shift + C", "Copy from Kitty", "Kitty", ("kitty",)),

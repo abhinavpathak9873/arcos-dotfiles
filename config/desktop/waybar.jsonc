@@ -8,8 +8,8 @@
   "modules-right": ["mpris", "cpu", "memory", "custom/gpu", "temperature", "custom/caffeine", "network", "bluetooth", "pulseaudio", "battery", "custom/notification", "group/tray-expander", "custom/power"],
   "custom/applications": {
     "format": "󰀻  Applications",
-    "tooltip": "Application grid · Meta+A\nUniversal search · Meta+Space",
-    "on-click": "nwg-drawer -c 7 -spacing 10 -is 56 -i Papirus-Dark -fm nautilus -term kitty -wm sway -s drawer.css",
+    "tooltip": "Applications · Meta+A\nUniversal search · Meta+Space",
+    "on-click": "arcos-apps",
     "on-click-right": "arcos-settings"
   },
   "sway/workspaces": {
@@ -119,8 +119,8 @@
     "tooltip": true,
     "format": "{icon}",
     "format-icons": {
-      "notification": "󱅫",
-      "none": "󰂚",
+      "notification": "",
+      "none": "",
       "dnd-notification": "󰂛",
       "dnd-none": "󰪑",
       "inhibited-notification": "󰂛",

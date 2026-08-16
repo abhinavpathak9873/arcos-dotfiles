@@ -2,11 +2,12 @@
   "$schema": "/etc/xdg/swaync/configSchema.json",
   "positionX": "center",
   "positionY": "top",
-  "control-center-positionX": "center",
+  "control-center-positionX": "right",
   "control-center-positionY": "top",
-  "control-center-margin-top": 44,
-  "control-center-width": 520,
-  "control-center-height": 720,
+  "control-center-margin-top": 42,
+  "control-center-margin-right": 10,
+  "control-center-width": 410,
+  "control-center-height": 690,
   "control-center-layer": "overlay",
   "control-center-exclusive-zone": false,
   "layer-shell": true,
@@ -17,7 +18,7 @@
   "notification-body-image-height": 120,
   "notification-body-image-width": 210,
   "notification-grouping": true,
-  "transition-time": 140,
+  "transition-time": 160,
   "timeout": 6,
   "timeout-low": 3,
   "timeout-critical": 0,
@@ -25,36 +26,77 @@
   "keyboard-shortcuts": true,
   "image-visibility": "when-available",
   "hide-on-action": true,
-  "widgets": ["buttons-grid", "volume", "backlight", "mpris", "title", "dnd", "notifications"],
+  "text-empty": "You're all caught up",
+  "widgets": [
+    "label#control-center-header",
+    "buttons-grid#connectivity",
+    "volume",
+    "backlight",
+    "mpris",
+    "buttons-grid#utilities",
+    "title",
+    "notifications"
+  ],
   "widget-config": {
-    "buttons-grid": {
-      "buttons-per-row": 4,
+    "label#control-center-header": {
+      "text": "Control Center",
+      "max-lines": 1
+    },
+    "buttons-grid#connectivity": {
+      "buttons-per-row": 2,
       "actions": [
         {
-          "label": "󰖩",
+          "label": "󰖩  Wi-Fi",
           "type": "toggle",
           "command": "test \"$SWAYNC_TOGGLE_STATE\" = true && nmcli radio wifi on || nmcli radio wifi off",
           "update-command": "nmcli radio wifi | grep -q enabled && echo true || echo false"
         },
         {
-          "label": "󰂯",
+          "label": "󰂯  Bluetooth",
           "type": "toggle",
           "command": "test \"$SWAYNC_TOGGLE_STATE\" = true && bluetoothctl power on || bluetoothctl power off",
           "update-command": "bluetoothctl show 2>/dev/null | grep -q Powered:.yes && echo true || echo false"
         },
-        { "label": "󰌾", "command": "arcos-lock" },
-        { "label": "󰒓", "command": "arcos-settings" },
-        { "label": "󰹑", "command": "arcos-capture" },
-        { "label": "󰁯", "command": "arcos-update" },
-        { "label": "󰑓", "command": "systemctl suspend" },
-        { "label": "", "command": "arcos-power-menu" }
+        {
+          "label": "󰂛  Focus",
+          "type": "toggle",
+          "command": "test \"$SWAYNC_TOGGLE_STATE\" = true && swaync-client -dn || swaync-client -df",
+          "update-command": "swaync-client -D | grep -q true && echo true || echo false"
+        },
+        {
+          "label": "󰅶  Stay awake",
+          "type": "toggle",
+          "command": "arcos-caffeine toggle",
+          "update-command": "systemctl --user --quiet is-active arc-caffeine.service && echo true || echo false"
+        }
       ]
     },
-    "volume": { "label": "󰕾" },
+    "volume": {
+      "label": "󰕾",
+      "show-per-app": true,
+      "show-per-app-icon": true,
+      "show-per-app-label": true,
+      "expand-per-app": false,
+      "expand-button-label": "󰅀",
+      "collapse-button-label": "󰅃",
+      "animation-duration": 140
+    },
     "backlight": { "label": "󰃟", "min": 5 },
-    "mpris": { "show-album-art": "when-available", "autohide": true },
+    "mpris": {
+      "show-album-art": "when-available",
+      "autohide": true,
+      "loop-carousel": true
+    },
+    "buttons-grid#utilities": {
+      "buttons-per-row": 2,
+      "actions": [
+        { "label": "󰹑  Capture", "command": "arcos-capture" },
+        { "label": "󰍹  Displays", "command": "wdisplays" },
+        { "label": "󰌾  Lock", "command": "arcos-lock" },
+        { "label": "󰒓  Settings", "command": "arcos-settings" }
+      ]
+    },
     "title": { "text": "Notifications", "clear-all-button": true, "button-text": "Clear" },
-    "dnd": { "text": "Do not disturb" },
-    "notifications": {}
+    "notifications": { "vexpand": true }
   }
 }

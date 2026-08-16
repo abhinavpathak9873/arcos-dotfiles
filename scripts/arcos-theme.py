@@ -145,7 +145,7 @@ def apply_theme(wallpaper: Path, accent: str, source: str, *, reload_desktop: bo
         ("mako.conf", "mako.conf"),
         ("kitty.conf", "kitty.conf"),
         ("gtk.css", "gtk.css"),
-        ("nwg-drawer.css", "nwg-drawer.css"),
+        ("apps.css", "apps.css"),
         ("overview.css", "overview.css"),
         ("gtklock.css", "gtklock.css"),
         ("swaync.css", "swaync.css"),
@@ -158,13 +158,27 @@ def apply_theme(wallpaper: Path, accent: str, source: str, *, reload_desktop: bo
     gtk_css = render(template_dir / "gtk.css", colors)
     write_atomic(config_home / "gtk-3.0" / "gtk.css", gtk_css)
     write_atomic(config_home / "gtk-4.0" / "gtk.css", gtk_css)
-    write_atomic(config_home / "nwg-drawer" / "drawer.css", render(template_dir / "nwg-drawer.css", colors))
     write_atomic(config_home / "swaync" / "style.css", render(template_dir / "swaync.css", colors))
     write_atomic(config_home / "swayosd" / "style.css", render(template_dir / "swayosd.css", colors))
     write_atomic(config_home / "tmux" / "arcos-theme.conf", render(template_dir / "tmux-theme.conf", colors))
     write_atomic(config_home / "nvim" / "arcos-theme.lua", render(template_dir / "nvim-theme.lua", colors))
     write_atomic(config_home / "walker" / "config.toml", (template_dir / "walker.toml").read_text(encoding="utf-8"))
     write_atomic(config_home / "walker" / "themes" / "arcos" / "style.css", render(template_dir / "walker.css", colors))
+    # Voxtype reads the established Omarchy palette location. Mirroring the
+    # live ArcOS palette there keeps its native waveform OSD in lockstep with
+    # wallpaper-derived and manually selected accents.
+    voxtype_colors = "\n".join(
+        (
+            f'background = "{colors["background"]}"',
+            f'foreground = "{colors["foreground"]}"',
+            f'accent = "{colors["accent"]}"',
+            f'color1 = "{colors["critical"]}"',
+            f'color2 = "{colors["accent_soft"]}"',
+            f'color3 = "{colors["warning"]}"',
+            "",
+        )
+    )
+    write_atomic(config_home / "omarchy" / "current" / "theme" / "colors.toml", voxtype_colors)
 
     state = {
         "wallpaper": str(wallpaper),

@@ -1,0 +1,129 @@
+@define-color background {{background}};
+@define-color background_alt {{background_alt}};
+@define-color panel {{panel}};
+@define-color border {{border}};
+@define-color foreground {{foreground}};
+@define-color muted {{muted}};
+@define-color accent {{accent}};
+@define-color accent_text {{accent_text}};
+
+#arcos-apps {
+  color: @foreground;
+  background: transparent;
+}
+
+.apps-panel {
+  color: @foreground;
+  background: alpha(@background, 0.97);
+  border: 1px solid alpha(@border, 0.84);
+  border-radius: 28px;
+  box-shadow: 0 22px 70px alpha(black, 0.4);
+  padding: 26px 28px 24px;
+}
+
+.display-title {
+  color: @foreground;
+  font-family: "JetBrainsMono Nerd Font";
+  font-size: 25px;
+  font-weight: 800;
+  letter-spacing: -0.3px;
+}
+
+.subtitle,
+.keyboard-hint {
+  color: @muted;
+  font-size: 11px;
+}
+
+.apps-panel searchentry,
+.apps-panel entry,
+.apps-search {
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+  padding: 0;
+}
+
+.apps-panel searchentry > text,
+.apps-panel searchentry text,
+.apps-panel entry > text,
+.apps-panel entry text,
+.apps-search > text,
+.apps-search text {
+  min-height: 46px;
+  color: @foreground;
+  background: alpha(@background_alt, 0.94);
+  border: 1px solid alpha(@border, 0.74);
+  border-radius: 16px;
+  padding: 0 14px;
+  box-shadow: none;
+  caret-color: @accent;
+}
+
+.apps-panel searchentry:focus-within > text,
+.apps-panel entry:focus-within > text,
+.apps-search:focus-within > text {
+  border-color: @accent;
+  box-shadow: 0 0 0 2px alpha(@accent, 0.13);
+}
+
+.category-strip {
+  margin-bottom: 1px;
+}
+
+.category-chip {
+  color: @muted;
+  background: alpha(@panel, 0.72);
+  border: 1px solid alpha(@border, 0.5);
+  border-radius: 999px;
+  min-height: 30px;
+  padding: 3px 12px;
+  font-size: 11px;
+  transition: 110ms ease-out;
+}
+
+.category-chip:hover {
+  color: @foreground;
+  background: alpha(@accent, 0.12);
+}
+
+.category-chip.selected {
+  color: @accent_text;
+  background: @accent;
+  border-color: @accent;
+}
+
+.app-tile {
+  color: @foreground;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 19px;
+  min-width: 144px;
+  min-height: 92px;
+  padding: 11px 8px;
+  transition: 110ms ease-out;
+}
+
+.app-tile:hover,
+.app-tile:focus {
+  color: @foreground;
+  background: alpha(@panel, 0.9);
+  border-color: alpha(@accent, 0.66);
+}
+
+.app-tile image {
+  -gtk-icon-shadow: 0 4px 12px alpha(black, 0.22);
+}
+
+.app-name {
+  color: @foreground;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+scrollbar slider {
+  min-width: 5px;
+  min-height: 34px;
+  background: alpha(@muted, 0.28);
+  border-radius: 999px;
+}

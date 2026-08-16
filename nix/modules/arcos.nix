@@ -51,6 +51,7 @@ let
     buildFeatures = (old.buildFeatures or [ ]) ++ [ "osd-gtk4" ];
     cargoBuildFlags = (old.cargoBuildFlags or [ ]) ++ [ "--features=osd-gtk4" ];
     cargoTestFlags = (old.cargoTestFlags or [ ]) ++ [ "--features=osd-gtk4" ];
+    patches = (old.patches or [ ]) ++ [ ../patches/voxtype-material-osd.patch ];
     nativeBuildInputs = (old.nativeBuildInputs or [ ]) ++ [ pkgs.wrapGAppsHook4 ];
     buildInputs = (old.buildInputs or [ ]) ++ [
       pkgs.gtk4
@@ -194,6 +195,38 @@ let
       rofi
     ];
     text = builtins.readFile ../../scripts/arcos-menu.sh;
+  };
+  arcosApps = pkgs.writeShellApplication {
+    name = "arcos-apps";
+    runtimeInputs = [
+      overviewPython
+      pkgs.gdk-pixbuf
+      pkgs.glib
+      pkgs.gobject-introspection
+      pkgs.graphene
+      pkgs.gtk4
+      pkgs.gtk4-layer-shell
+      pkgs.harfbuzz
+      pkgs.pango
+    ];
+    text = ''
+      export GI_TYPELIB_PATH=${
+        lib.makeSearchPath "lib/girepository-1.0" [
+          pkgs.gdk-pixbuf.out
+          pkgs.glib.out
+          pkgs.gobject-introspection.out
+          pkgs.graphene.out
+          pkgs.gtk4.out
+          pkgs.gtk4-layer-shell.out
+          pkgs.harfbuzz.out
+          pkgs.pango.out
+        ]
+      }
+      export LD_PRELOAD=${pkgs.gtk4-layer-shell}/lib/libgtk4-layer-shell.so
+      export GSK_RENDERER=cairo
+      apps_log="''${XDG_RUNTIME_DIR:-/tmp}/arcos-apps.log"
+      exec ${overviewPython}/bin/python ${../../scripts/arcos-apps.py} "$@" 2>>"$apps_log"
+    '';
   };
   arcosOverview = pkgs.writeShellApplication {
     name = "arcos-overview";
@@ -718,7 +751,7 @@ let
     ''}
     ${lib.optionalString (!cfg.enableAi) ''
       bindsym --to-code --no-repeat $mod+space exec ${walkerWithWindowFocus}/bin/walker
-      bindsym --to-code --no-repeat $mod+a exec ${pkgs.nwg-drawer}/bin/nwg-drawer -c 7 -spacing 10 -is 56 -i Papirus-Dark -fm ${pkgs.nautilus}/bin/nautilus -term ${pkgs.kitty}/bin/kitty -wm sway -s drawer.css
+      bindsym --to-code --no-repeat $mod+a exec ${arcosApps}/bin/arcos-apps
       bindsym --to-code --no-repeat $mod+w exec ${arcosOverview}/bin/arcos-overview
       bindsym --to-code --no-repeat $mod+d exec ${walkerWithWindowFocus}/bin/walker
       bindsym --to-code --no-repeat $mod+v exec ${arcosClipboard}/bin/arcos-clipboard
@@ -811,7 +844,6 @@ in
           playerctl
           polkit_gnome
           rofi
-          nwg-drawer
           slurp
           swayidle
           swaylock
@@ -871,8 +903,7 @@ in
     environment.etc."arcos-desktop/templates/mako.conf".source = ../../config/desktop/mako.conf;
     environment.etc."arcos-desktop/templates/kitty.conf".source = ../../config/desktop/kitty.conf;
     environment.etc."arcos-desktop/templates/gtk.css".source = ../../config/desktop/gtk.css;
-    environment.etc."arcos-desktop/templates/nwg-drawer.css".source =
-      ../../config/desktop/nwg-drawer.css;
+    environment.etc."arcos-desktop/templates/apps.css".source = ../../config/desktop/apps.css;
     environment.etc."arcos-desktop/templates/overview.css".source = ../../config/desktop/overview.css;
     environment.etc."arcos-desktop/templates/shortcuts.css".source = ../../config/desktop/shortcuts.css;
     environment.etc."arcos-desktop/templates/tmux-theme.conf".source =
@@ -990,6 +1021,7 @@ in
       ]
       ++ lib.optionals (!cfg.enableAi) [
         arcosBrew
+        arcosApps
         arcosConfigBackup
         arcosCaffeine
         arcosClipboard
@@ -1234,7 +1266,6 @@ in
           btop
           kitty
           networkmanagerapplet
-          nwg-drawer
           pavucontrol
           playerctl
           nautilus
@@ -1244,6 +1275,7 @@ in
           arcHardStop
         ]
         ++ lib.optionals (!cfg.enableAi) [
+          arcosApps
           arcosCaffeine
           arcosMenu
           arcosGpuUsage
@@ -1359,9 +1391,10 @@ in
     # Use SwayNC's canonical D-Bus unit name.  Clients activate this same unit,
     # so there can never be a second notification daemon racing our service.
     systemd.user.services.swaync = lib.mkIf (!cfg.enableAi) {
-      description = "ArcOS notifications and quick controls";
+      description = "ArcOS Control Center and notifications";
       partOf = [ "arcos-desktop.target" ];
       path = with pkgs; [
+        arcosCaffeine
         arcosCapture
         arcosLock
         arcosPowerMenu
@@ -1370,7 +1403,9 @@ in
         bluez
         gnugrep
         networkmanager
+        swaynotificationcenter
         systemd
+        wdisplays
       ];
       serviceConfig = {
         ExecStart = "${pkgs.swaynotificationcenter}/bin/swaync --config /etc/xdg/swaync/config.json --style %h/.config/swaync/style.css";

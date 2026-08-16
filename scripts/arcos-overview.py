@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import json
+import os
 import subprocess
 from dataclasses import dataclass
 from pathlib import Path
@@ -63,11 +64,15 @@ class Overview(Gtk.Application):
     def __init__(self) -> None:
         super().__init__(application_id="dev.arcos.Overview", flags=Gio.ApplicationFlags.NON_UNIQUE)
         self.windows = collect_windows(sway_json("get_tree"))
-        self.workspaces = {int(item["num"]): item for item in sway_json("get_workspaces") if int(item["num"]) > 0}
-        highest = max(self.workspaces, default=1)
-        for number in range(1, max(4, highest + 1) + 1):
-            self.workspaces.setdefault(number, {"num": number, "name": str(number), "focused": False, "rect": {}})
+        occupied = {item.workspace for item in self.windows}
+        self.workspaces = {
+            int(item["num"]): item
+            for item in sway_json("get_workspaces")
+            if int(item["num"]) > 0 and int(item["num"]) in occupied
+        }
         self.icons = self._desktop_icons()
+        self.ready = Path(os.environ.get("XDG_RUNTIME_DIR", "/tmp")) / "arcos-overview.ready"
+        self.ready.unlink(missing_ok=True)
 
     @staticmethod
     def _desktop_icons() -> dict[str, Gio.Icon]:
@@ -95,16 +100,11 @@ class Overview(Gtk.Application):
         window = Gtk.ApplicationWindow(application=self)
         window.set_name("arcos-overview")
         window.set_title("ArcOS Workspaces")
+        window.set_default_size(900, 600)
+        window.set_resizable(False)
         Gtk4LayerShell.init_for_window(window)
         Gtk4LayerShell.set_layer(window, Gtk4LayerShell.Layer.OVERLAY)
         Gtk4LayerShell.set_keyboard_mode(window, Gtk4LayerShell.KeyboardMode.EXCLUSIVE)
-        for edge in (
-            Gtk4LayerShell.Edge.TOP,
-            Gtk4LayerShell.Edge.RIGHT,
-            Gtk4LayerShell.Edge.BOTTOM,
-            Gtk4LayerShell.Edge.LEFT,
-        ):
-            Gtk4LayerShell.set_anchor(window, edge, True)
 
         css = Gtk.CssProvider()
         css.load_from_path(str(Path.home() / ".config/arcos-desktop/overview.css"))
@@ -113,20 +113,38 @@ class Overview(Gtk.Application):
         )
 
         key = Gtk.EventControllerKey()
+        key.set_propagation_phase(Gtk.PropagationPhase.CAPTURE)
         key.connect("key-pressed", self._key_pressed)
         window.add_controller(key)
         window.set_child(self._content())
         window.present()
+        GLib.idle_add(self._mark_ready)
+
+    def _mark_ready(self) -> bool:
+        self.ready.touch()
+        return GLib.SOURCE_REMOVE
 
     def _content(self) -> Gtk.Widget:
-        root = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=24)
-        root.add_css_class("overview-root")
+        surface = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
+        surface.add_css_class("overview-surface")
+        for setter in (
+            surface.set_margin_top,
+            surface.set_margin_end,
+            surface.set_margin_bottom,
+            surface.set_margin_start,
+        ):
+            setter(10)
+
+        root = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=18)
+        root.add_css_class("overview-panel")
+        root.set_vexpand(True)
+        root.set_hexpand(True)
 
         header = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=12)
         title_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
         title = Gtk.Label(label="Workspaces", xalign=0)
         title.add_css_class("display-title")
-        subtitle = Gtk.Label(label="Choose a workspace or jump straight to an open app", xalign=0)
+        subtitle = Gtk.Label(label="Occupied workspaces and everything running in them", xalign=0)
         subtitle.add_css_class("subtitle")
         title_box.append(title)
         title_box.append(subtitle)
@@ -134,20 +152,25 @@ class Overview(Gtk.Application):
         spacer = Gtk.Box()
         spacer.set_hexpand(True)
         header.append(spacer)
-        hint = Gtk.Label(label="Esc  Close   ·   1–0  Switch workspace")
+        hint = Gtk.Label(label="Esc  Close   ·   1–0  Switch")
         hint.add_css_class("keyboard-hint")
         header.append(hint)
         root.append(header)
 
-        cards = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=14)
-        cards.set_homogeneous(True)
-        for number, workspace in sorted(self.workspaces.items()):
-            cards.append(self._workspace_card(number, workspace))
-        card_scroll = Gtk.ScrolledWindow()
-        card_scroll.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.NEVER)
-        card_scroll.set_child(cards)
-        card_scroll.set_propagate_natural_height(True)
-        root.append(card_scroll)
+        if self.workspaces:
+            cards = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=12)
+            cards.set_halign(Gtk.Align.CENTER)
+            for number, workspace in sorted(self.workspaces.items()):
+                cards.append(self._workspace_card(number, workspace))
+            card_scroll = Gtk.ScrolledWindow()
+            card_scroll.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.NEVER)
+            card_scroll.set_child(cards)
+            card_scroll.set_propagate_natural_height(True)
+            root.append(card_scroll)
+        else:
+            empty = Gtk.Label(label="No occupied workspaces yet")
+            empty.add_css_class("empty-state")
+            root.append(empty)
 
         section = Gtk.Label(label="Open applications", xalign=0)
         section.add_css_class("section-title")
@@ -172,11 +195,13 @@ class Overview(Gtk.Application):
         app_scroll.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
         app_scroll.set_child(app_list)
         root.append(app_scroll)
-        return root
+        surface.append(root)
+        return surface
 
     def _workspace_card(self, number: int, workspace: dict) -> Gtk.Button:
         button = Gtk.Button()
         button.add_css_class("workspace-card")
+        button.set_size_request(292, -1)
         if workspace.get("focused"):
             button.add_css_class("selected")
         box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=10)
@@ -184,8 +209,8 @@ class Overview(Gtk.Application):
         label.add_css_class("workspace-title")
         box.append(label)
         preview = Gtk.DrawingArea()
-        preview.set_content_width(252)
-        preview.set_content_height(142)
+        preview.set_content_width(264)
+        preview.set_content_height(136)
         preview.set_draw_func(self._draw_workspace, number)
         preview.add_css_class("workspace-preview")
         box.append(preview)
