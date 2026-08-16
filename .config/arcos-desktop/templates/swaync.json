@@ -1,0 +1,60 @@
+{
+  "$schema": "/etc/xdg/swaync/configSchema.json",
+  "positionX": "center",
+  "positionY": "top",
+  "control-center-positionX": "center",
+  "control-center-positionY": "top",
+  "control-center-margin-top": 44,
+  "control-center-width": 520,
+  "control-center-height": 720,
+  "control-center-layer": "overlay",
+  "control-center-exclusive-zone": false,
+  "layer-shell": true,
+  "layer-shell-cover-screen": false,
+  "layer": "overlay",
+  "notification-window-width": 430,
+  "notification-icon-size": 52,
+  "notification-body-image-height": 120,
+  "notification-body-image-width": 210,
+  "notification-grouping": true,
+  "transition-time": 140,
+  "timeout": 6,
+  "timeout-low": 3,
+  "timeout-critical": 0,
+  "fit-to-screen": false,
+  "keyboard-shortcuts": true,
+  "image-visibility": "when-available",
+  "hide-on-action": true,
+  "widgets": ["buttons-grid", "volume", "backlight", "mpris", "title", "dnd", "notifications"],
+  "widget-config": {
+    "buttons-grid": {
+      "buttons-per-row": 4,
+      "actions": [
+        {
+          "label": "󰖩",
+          "type": "toggle",
+          "command": "test \"$SWAYNC_TOGGLE_STATE\" = true && nmcli radio wifi on || nmcli radio wifi off",
+          "update-command": "nmcli radio wifi | grep -q enabled && echo true || echo false"
+        },
+        {
+          "label": "󰂯",
+          "type": "toggle",
+          "command": "test \"$SWAYNC_TOGGLE_STATE\" = true && bluetoothctl power on || bluetoothctl power off",
+          "update-command": "bluetoothctl show 2>/dev/null | grep -q Powered:.yes && echo true || echo false"
+        },
+        { "label": "󰌾", "command": "arcos-lock" },
+        { "label": "󰒓", "command": "arcos-settings" },
+        { "label": "󰹑", "command": "arcos-capture" },
+        { "label": "󰁯", "command": "arcos-update" },
+        { "label": "󰑓", "command": "systemctl suspend" },
+        { "label": "", "command": "arcos-power-menu" }
+      ]
+    },
+    "volume": { "label": "󰕾" },
+    "backlight": { "label": "󰃟", "min": 5 },
+    "mpris": { "show-album-art": "when-available", "autohide": true },
+    "title": { "text": "Notifications", "clear-all-button": true, "button-text": "Clear" },
+    "dnd": { "text": "Do not disturb" },
+    "notifications": {}
+  }
+}

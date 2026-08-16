@@ -1,0 +1,77 @@
+@define-color background {{background}};
+@define-color panel {{panel}};
+@define-color border {{border}};
+@define-color foreground {{foreground}};
+@define-color muted {{muted}};
+@define-color accent {{accent}};
+@define-color accent_text {{accent_text}};
+
+#arcos-power-menu {
+  color: @foreground;
+  background: alpha(@background, 0.88);
+}
+
+.power-root {
+  padding: 40px;
+}
+
+.power-panel {
+  min-width: 1040px;
+}
+
+.power-title {
+  color: @foreground;
+  font-family: "JetBrainsMono Nerd Font", sans-serif;
+  font-size: 30px;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+}
+
+.power-hint {
+  margin-top: -18px;
+  color: @muted;
+  font-family: "JetBrainsMono Nerd Font", sans-serif;
+  font-size: 13px;
+}
+
+.power-actions {
+  margin-top: 12px;
+}
+
+.power-action {
+  min-width: 176px;
+  min-height: 172px;
+  padding: 22px 14px;
+  color: @foreground;
+  background: alpha(@panel, 0.96);
+  border: 1px solid alpha(@border, 0.76);
+  border-radius: 26px;
+  font-family: "JetBrainsMono Nerd Font", sans-serif;
+  transition: 110ms ease-out;
+}
+
+.power-action:hover,
+.power-action:focus {
+  color: @accent_text;
+  background: @accent;
+  border-color: @accent;
+}
+
+.power-icon {
+  margin-bottom: 8px;
+}
+
+.power-label {
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.power-description {
+  color: @muted;
+  font-size: 11px;
+}
+
+.power-action:hover .power-description,
+.power-action:focus .power-description {
+  color: alpha(@accent_text, 0.78);
+}

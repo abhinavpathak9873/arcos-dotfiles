@@ -1,0 +1,159 @@
+@define-color background {{background}};
+@define-color background_alt {{background_alt}};
+@define-color panel {{panel}};
+@define-color border {{border}};
+@define-color foreground {{foreground}};
+@define-color muted {{muted}};
+@define-color accent {{accent}};
+@define-color accent_text {{accent_text}};
+@define-color warning {{warning}};
+@define-color critical {{critical}};
+
+* {
+  border: none;
+  border-radius: 0;
+  min-height: 0;
+  font-family: "JetBrainsMono Nerd Font", sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+window#waybar {
+  color: @foreground;
+  background: alpha(@background, 0.97);
+  border-bottom: 1px solid alpha(@border, 0.72);
+}
+
+#custom-applications {
+  padding: 0 11px;
+  color: @foreground;
+  background: alpha(@accent, 0.12);
+  border-bottom: 2px solid @accent;
+  font-weight: 600;
+  transition: 110ms ease;
+}
+
+#workspaces {
+  padding: 0 7px;
+  background: alpha(@background_alt, 0.64);
+  border-right: 1px solid alpha(@border, 0.55);
+}
+
+#workspaces button {
+  min-width: 26px;
+  padding: 0 5px;
+  color: @muted;
+  background: transparent;
+  border-bottom: 2px solid transparent;
+  font-size: 11px;
+  font-weight: 600;
+  transition: 110ms ease;
+}
+
+#workspaces button:hover {
+  color: @foreground;
+  background: alpha(@foreground, 0.05);
+}
+
+#workspaces button.focused,
+#workspaces button.active {
+  color: @foreground;
+  border-bottom-color: @accent;
+}
+
+#workspaces button.urgent {
+  color: @critical;
+  border-bottom-color: @critical;
+}
+
+#window {
+  padding: 0 12px;
+  color: @muted;
+}
+
+#clock {
+  padding: 0 13px;
+  color: @foreground;
+  font-weight: 600;
+}
+
+#cpu,
+#memory,
+#custom-gpu,
+#temperature,
+#mpris,
+#network,
+#bluetooth,
+#pulseaudio,
+#battery,
+#custom-caffeine,
+#custom-notification,
+#custom-tray-toggle,
+#tray,
+#custom-power {
+  padding: 0 8px;
+  color: @muted;
+  border-left: 1px solid alpha(@border, 0.42);
+}
+
+#cpu,
+#memory,
+#custom-gpu {
+  color: @foreground;
+}
+
+#network,
+#bluetooth,
+#pulseaudio,
+#custom-caffeine.active,
+#custom-notification {
+  color: @accent;
+}
+
+#custom-caffeine,
+#custom-tray-toggle {
+  min-width: 15px;
+  font-size: 13px;
+}
+
+#custom-caffeine.active {
+  background: alpha(@accent, 0.12);
+  border-bottom: 2px solid @accent;
+}
+
+#group-tray-expander {
+  background: alpha(@background_alt, 0.56);
+}
+
+#tray {
+  padding-right: 7px;
+}
+
+#mpris {
+  color: @foreground;
+  font-size: 11px;
+}
+
+#temperature.critical,
+#battery.critical {
+  color: @critical;
+}
+
+#battery.warning {
+  color: @warning;
+}
+
+#custom-power {
+  padding: 0 11px;
+  color: @accent;
+  background: transparent;
+  font-size: 13px;
+}
+
+tooltip {
+  color: @foreground;
+  background: @background_alt;
+  border: 1px solid @border;
+  border-radius: 7px;
+  padding: 8px;
+}

@@ -1,0 +1,111 @@
+@define-color background {{background}};
+@define-color panel {{panel}};
+@define-color border {{border}};
+@define-color foreground {{foreground}};
+@define-color muted {{muted}};
+@define-color accent {{accent}};
+@define-color accent_text {{accent_text}};
+
+window {
+  color: @foreground;
+  background-color: alpha(@background, 0.48);
+  background-size: cover;
+  background-position: center;
+}
+
+* {
+  font-family: "JetBrainsMono Nerd Font", sans-serif;
+  text-shadow: none;
+}
+
+#clock-label {
+  color: @foreground;
+  font-size: 72px;
+  font-weight: 750;
+  letter-spacing: -3px;
+  margin-top: 68px;
+}
+
+#date-label {
+  color: @foreground;
+  font-size: 18px;
+  font-weight: 550;
+  margin-top: 2px;
+}
+
+#body,
+#input-form {
+  transition: 140ms ease-out;
+}
+
+#input-form {
+  min-width: 360px;
+  padding: 22px;
+  margin-bottom: 74px;
+  background: alpha(@panel, 0.92);
+  border: 1px solid alpha(@border, 0.78);
+  border-radius: 28px;
+  box-shadow: 0 12px 48px alpha(black, 0.34);
+}
+
+#user-image {
+  min-width: 88px;
+  min-height: 88px;
+  border-radius: 999px;
+  border: 3px solid alpha(@accent, 0.76);
+  margin-bottom: 10px;
+}
+
+#user-name {
+  color: @foreground;
+  font-size: 19px;
+  font-weight: 650;
+}
+
+#input-field {
+  min-height: 44px;
+  margin-top: 12px;
+  padding: 0 16px;
+  color: @foreground;
+  caret-color: @accent;
+  background: alpha(@background, 0.72);
+  border: 1px solid alpha(@border, 0.82);
+  border-radius: 22px;
+  transition: 110ms ease-out;
+}
+
+#input-field:focus {
+  border-color: @accent;
+  box-shadow: 0 0 0 2px alpha(@accent, 0.18);
+}
+
+#unlock-button,
+#powerbar-box button,
+#playerctl-box button {
+  color: @accent_text;
+  background: @accent;
+  border: none;
+  border-radius: 999px;
+  padding: 10px 18px;
+  transition: 110ms ease-out;
+}
+
+#unlock-button:hover,
+#powerbar-box button:hover,
+#playerctl-box button:hover {
+  background: shade(@accent, 1.08);
+}
+
+#powerbar-box,
+#playerctl-box {
+  padding: 8px;
+  margin: 12px;
+  background: alpha(@panel, 0.82);
+  border: 1px solid alpha(@border, 0.66);
+  border-radius: 24px;
+}
+
+#warning-label,
+#error-label {
+  color: #f38ba8;
+}

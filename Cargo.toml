@@ -1,0 +1,26 @@
+[workspace]
+members = [
+  "crates/arc-codex",
+  "crates/arc-core",
+  "crates/arc-inspector",
+  "crates/arc-protocol",
+  "crates/arc-shell",
+  "crates/arc-speech",
+]
+resolver = "2"
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+
+[workspace.dependencies]
+anyhow = "1"
+async-trait = "0.1"
+chrono = { version = "0.4", features = ["serde"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+sha2 = "0.10"
+thiserror = "2"
+tokio = { version = "1", features = ["fs", "macros", "net", "process", "rt-multi-thread", "io-util", "io-std", "signal", "sync", "time"] }
+uuid = { version = "1", features = ["v4", "serde"] }

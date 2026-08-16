@@ -1,0 +1,147 @@
+* {
+  border: none;
+  border-radius: 0;
+  min-height: 0;
+  font-family: "Inter", "Symbols Nerd Font Mono", sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+window#waybar {
+  color: #c6d0f5;
+  background: rgba(18, 20, 29, 0.94);
+  border: 1px solid rgba(148, 156, 187, 0.20);
+  border-radius: 12px;
+}
+
+#custom-launcher,
+#custom-arc {
+  margin: 5px 4px;
+  padding: 0 11px;
+  border-radius: 8px;
+  background: rgba(65, 69, 89, 0.56);
+}
+
+#custom-launcher {
+  margin-left: 5px;
+  margin-right: 6px;
+  color: #ca9ee6;
+  background: rgba(202, 158, 230, 0.13);
+  font-size: 16px;
+}
+
+#workspaces {
+  margin: 6px 5px 6px 0;
+  padding: 0 3px;
+  border-radius: 8px;
+  background: rgba(48, 52, 70, 0.48);
+}
+
+#workspaces button {
+  min-width: 22px;
+  margin: 3px 2px;
+  padding: 0 5px;
+  color: #838ba7;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  background: transparent;
+}
+
+#workspaces button.focused,
+#workspaces button.active {
+  color: #eadcf2;
+  background: rgba(202, 158, 230, 0.22);
+}
+
+#workspaces button.urgent {
+  color: #303446;
+  background: #e78284;
+}
+
+#window {
+  margin-left: 6px;
+  padding: 0 8px;
+  color: #949cbb;
+  font-weight: 500;
+}
+
+#clock {
+  margin: 6px 0;
+  padding: 0 15px;
+  color: #d9dcec;
+  border-radius: 8px;
+  background: rgba(48, 52, 70, 0.42);
+  font-weight: 600;
+}
+
+#custom-arc {
+  color: #d9c4e8;
+  background: rgba(202, 158, 230, 0.12);
+  font-weight: 600;
+}
+
+#custom-arc.listening,
+#custom-arc.speaking {
+  color: #c7e1b4;
+  background: rgba(166, 209, 137, 0.12);
+}
+
+#custom-arc.thinking,
+#custom-arc.controlling {
+  color: #e0c0ed;
+  background: rgba(202, 158, 230, 0.16);
+}
+
+#custom-arc.attention,
+#custom-arc.error {
+  color: #f1b1b2;
+  background: rgba(231, 130, 132, 0.13);
+}
+
+#idle_inhibitor,
+#cpu,
+#memory,
+#temperature,
+#network,
+#bluetooth,
+#pulseaudio,
+#battery,
+#tray {
+  margin: 8px 0;
+  padding: 0 8px;
+  color: #aeb5cf;
+  border-left: 1px solid rgba(148, 156, 187, 0.10);
+}
+
+#idle_inhibitor {
+  border-left: none;
+}
+
+#network,
+#bluetooth,
+#pulseaudio {
+  color: #a9ccdc;
+}
+
+#battery.warning,
+#temperature.critical {
+  color: #e5c890;
+}
+
+#battery.critical {
+  color: #e78284;
+}
+
+#tray {
+  margin-right: 4px;
+  padding-right: 7px;
+}
+
+tooltip {
+  color: #d9dcec;
+  background: #1b1e2a;
+  border: 1px solid rgba(148, 156, 187, 0.28);
+  border-radius: 9px;
+  padding: 8px;
+}

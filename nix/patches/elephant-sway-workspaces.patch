@@ -1,0 +1,87 @@
+--- a/internal/providers/windows/setup.go
++++ b/internal/providers/windows/setup.go
+@@ -2,6 +2,7 @@
+ package main
+ 
+ import (
++	"encoding/json"
+ 	"fmt"
+ 	"io/fs"
+ 	"log/slog"
+@@ -55,6 +56,57 @@
+ 	Focus(workspace string)
+ }
+ 
++type swayNode struct {
++	Type             string     `json:"type"`
++	Name             string     `json:"name"`
++	Num              int        `json:"num"`
++	AppID            string     `json:"app_id"`
++	WindowProperties struct {
++		Class string `json:"class"`
++	} `json:"window_properties"`
++	Nodes         []swayNode `json:"nodes"`
++	FloatingNodes []swayNode `json:"floating_nodes"`
++}
++
++func swayWindowWorkspaces() map[string]string {
++	result := make(map[string]string)
++	if !strings.Contains(strings.ToLower(os.Getenv("XDG_CURRENT_DESKTOP")), "sway") {
++		return result
++	}
++	out, err := exec.Command("swaymsg", "-r", "-t", "get_tree").Output()
++	if err != nil {
++		return result
++	}
++	var root swayNode
++	if json.Unmarshal(out, &root) != nil {
++		return result
++	}
++	var walk func(swayNode, string)
++	walk = func(node swayNode, workspace string) {
++		if node.Type == "workspace" {
++			workspace = node.Name
++			if node.Num > 0 {
++				workspace = strconv.Itoa(node.Num)
++			}
++		}
++		appID := node.AppID
++		if appID == "" {
++			appID = node.WindowProperties.Class
++		}
++		if workspace != "" && appID != "" && node.Name != "" {
++			result[appID+"\x00"+node.Name] = workspace
++		}
++		for _, child := range node.Nodes {
++			walk(child, workspace)
++		}
++		for _, child := range node.FloatingNodes {
++			walk(child, workspace)
++		}
++	}
++	walk(root, "")
++	return result
++}
++
+ func Setup() {
+ 	start := time.Now()
+ 
+@@ -132,12 +184,17 @@
+ 	entries := []*pb.QueryResponse_Item{}
+ 
+ 	windows := wlr.Windows()
++	workspaces := swayWindowWorkspaces()
+ 
+ 	for k, window := range windows {
++		subtext := window.AppID
++		if workspace, ok := workspaces[window.AppID+"\x00"+window.Title]; ok {
++			subtext = fmt.Sprintf("Workspace %s · %s", workspace, window.AppID)
++		}
+ 		e := &pb.QueryResponse_Item{
+ 			Identifier: fmt.Sprintf("%d", k),
+ 			Text:       window.Title,
+-			Subtext:    window.AppID,
++			Subtext:    subtext,
+ 			Actions:    []string{ActionFocus},
+ 			Provider:   Name,
+ 			Icon:       config.Icon,

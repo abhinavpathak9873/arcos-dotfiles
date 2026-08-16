@@ -1,0 +1,6 @@
+---
+type: job
+name: arcos
+interface: python
+script: main.py
+weight: 24

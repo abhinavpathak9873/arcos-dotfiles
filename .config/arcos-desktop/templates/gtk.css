@@ -1,0 +1,11 @@
+@define-color accent_color {{accent}};
+@define-color accent_bg_color {{accent}};
+@define-color accent_fg_color {{accent_text}};
+@define-color window_bg_color {{background}};
+@define-color window_fg_color {{foreground}};
+@define-color headerbar_bg_color {{background_alt}};
+@define-color headerbar_fg_color {{foreground}};
+@define-color view_bg_color {{background_alt}};
+@define-color view_fg_color {{foreground}};
+@define-color card_bg_color {{panel}};
+@define-color card_fg_color {{foreground}};

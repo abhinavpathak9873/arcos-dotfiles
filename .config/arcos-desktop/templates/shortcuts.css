@@ -1,0 +1,84 @@
+@define-color background {{background}};
+@define-color background_alt {{background_alt}};
+@define-color panel {{panel}};
+@define-color border {{border}};
+@define-color foreground {{foreground}};
+@define-color muted {{muted}};
+@define-color accent {{accent}};
+@define-color accent_text {{accent_text}};
+
+#arcos-shortcuts {
+  color: @foreground;
+  background: alpha(@background, 0.78);
+}
+
+.shortcut-backdrop {
+  padding: 48px;
+}
+
+.shortcut-panel {
+  min-width: 780px;
+  min-height: 620px;
+  padding: 28px;
+  color: @foreground;
+  background: alpha(@background_alt, 0.98);
+  border: 1px solid alpha(@border, 0.84);
+  border-radius: 26px;
+  box-shadow: 0 20px 64px alpha(black, 0.44);
+}
+
+.shortcut-title {
+  font-family: "JetBrainsMono Nerd Font";
+  font-size: 25px;
+  font-weight: 800;
+}
+
+.shortcut-subtitle,
+.shortcut-hint,
+.shortcut-empty {
+  color: @muted;
+  font-size: 12px;
+}
+
+.shortcut-search {
+  min-height: 44px;
+  padding: 0 14px;
+  color: @foreground;
+  background: alpha(@panel, 0.88);
+  border: 1px solid alpha(@border, 0.8);
+  border-radius: 14px;
+}
+
+.shortcut-search:focus {
+  border-color: @accent;
+  box-shadow: 0 0 0 2px alpha(@accent, 0.16);
+}
+
+.shortcut-group {
+  margin: 12px 7px 2px;
+  color: @accent;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.shortcut-row {
+  min-height: 32px;
+  padding: 9px 12px;
+  background: alpha(@panel, 0.66);
+  border: 1px solid alpha(@border, 0.48);
+  border-radius: 12px;
+}
+
+.shortcut-action {
+  color: @foreground;
+}
+
+.shortcut-key {
+  padding: 4px 9px;
+  color: @accent_text;
+  background: @accent;
+  border-radius: 8px;
+  font-family: "JetBrainsMono Nerd Font";
+  font-size: 11px;
+  font-weight: 800;
+}

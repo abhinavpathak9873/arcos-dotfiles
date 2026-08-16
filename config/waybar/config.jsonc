@@ -1,0 +1,106 @@
+{
+  "layer": "top",
+  "position": "top",
+  "height": 40,
+  "spacing": 0,
+  "margin-top": 7,
+  "margin-left": 10,
+  "margin-right": 10,
+  "modules-left": ["custom/launcher", "sway/workspaces", "sway/window"],
+  "modules-center": ["clock"],
+  "modules-right": ["custom/arc", "idle_inhibitor", "cpu", "memory", "temperature", "network", "bluetooth", "pulseaudio", "battery", "tray"],
+  "custom/launcher": {
+    "format": "󰣇",
+    "tooltip": "Applications · Meta+D",
+    "on-click": "rofi -show drun"
+  },
+  "sway/workspaces": {
+    "all-outputs": false,
+    "disable-scroll": true,
+    "format": "{icon}",
+    "format-icons": {
+      "1": "1",
+      "2": "2",
+      "3": "3",
+      "4": "4",
+      "5": "5",
+      "6": "6",
+      "7": "7",
+      "8": "8",
+      "9": "9",
+      "10": "10",
+      "urgent": "󰀦",
+      "focused": "",
+      "default": ""
+    }
+  },
+  "sway/window": {
+    "format": "{title}",
+    "max-length": 36,
+    "separate-outputs": true
+  },
+  "clock": {
+    "format": "{:%a, %d %b   %H:%M}",
+    "format-alt": "{:%A, %d %B %Y   %H:%M:%S}",
+    "tooltip-format": "<tt><small>{calendar}</small></tt>"
+  },
+  "custom/arc": {
+    "return-type": "json",
+    "exec": "arcctl waybar --watch",
+    "restart-interval": 2,
+    "tooltip": true,
+    "on-click": "arcctl toggle",
+    "on-click-right": "arc-hard-stop"
+  },
+  "idle_inhibitor": {
+    "format": "{icon}",
+    "format-icons": { "activated": "󰛐", "deactivated": "󰒲" }
+  },
+  "cpu": {
+    "interval": 3,
+    "format": " {usage}%",
+    "tooltip": true
+  },
+  "memory": {
+    "interval": 3,
+    "format": " {percentage}%"
+  },
+  "temperature": {
+    "critical-threshold": 85,
+    "format": " {temperatureC}°",
+    "format-critical": "󰸁 {temperatureC}°"
+  },
+  "network": {
+    "interval": 3,
+    "format-wifi": " {signalStrength}%",
+    "format-ethernet": "󰈀 {ifname}",
+    "format-linked": "󰈀 {ifname}",
+    "format-disconnected": "󰖪",
+    "tooltip-format": "{ifname} · {ipaddr}/{cidr}\n{essid}"
+  },
+  "bluetooth": {
+    "format": "",
+    "format-connected": " {num_connections}",
+    "format-disabled": "󰂲",
+    "on-click": "blueman-manager"
+  },
+  "pulseaudio": {
+    "scroll-step": 3,
+    "format": "{icon} {volume}%",
+    "format-muted": "󰖁 muted",
+    "format-icons": ["", "", ""],
+    "on-click": "pavucontrol",
+    "on-click-right": "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"
+  },
+  "battery": {
+    "states": { "warning": 30, "critical": 15 },
+    "format": "{icon} {capacity}%",
+    "format-charging": "󰂄 {capacity}%",
+    "format-plugged": "",
+    "format-icons": ["󰂎", "󰁺", "󰁻", "󰁼", "󰁽", "󰁾", "󰁿", "󰂀", "󰂁", "󰂂", "󰁹"]
+  },
+  "tray": {
+    "icon-size": 17,
+    "spacing": 10
+  }
+}

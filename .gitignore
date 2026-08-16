@@ -1,0 +1,11 @@
+result
+result-*
+target/
+.direnv/
+.devenv/
+*.iso
+*.qcow2
+*.raw
+*.log
+__pycache__/
+*.pyc

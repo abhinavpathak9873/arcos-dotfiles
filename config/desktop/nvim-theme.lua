@@ -1,0 +1,7 @@
+vim.api.nvim_set_hl(0, "Normal", { bg = "{{background}}", fg = "{{foreground}}" })
+vim.api.nvim_set_hl(0, "NormalFloat", { bg = "{{background_alt}}", fg = "{{foreground}}" })
+vim.api.nvim_set_hl(0, "FloatBorder", { bg = "{{background_alt}}", fg = "{{accent}}" })
+vim.api.nvim_set_hl(0, "CursorLine", { bg = "{{panel}}" })
+vim.api.nvim_set_hl(0, "Visual", { bg = "{{border}}" })
+vim.api.nvim_set_hl(0, "LineNr", { fg = "{{muted}}" })
+vim.api.nvim_set_hl(0, "CursorLineNr", { fg = "{{accent}}", bold = true })

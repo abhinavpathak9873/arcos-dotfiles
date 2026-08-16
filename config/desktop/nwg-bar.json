@@ -1,0 +1,7 @@
+[
+  { "label": "Lock", "exec": "arcos-lock", "icon": "system-lock-screen" },
+  { "label": "Suspend", "exec": "systemctl suspend", "icon": "system-suspend" },
+  { "label": "Log out", "exec": "swaymsg exit", "icon": "system-log-out" },
+  { "label": "Restart", "exec": "systemctl reboot", "icon": "system-reboot" },
+  { "label": "Shut down", "exec": "systemctl poweroff", "icon": "system-shutdown" }
+]

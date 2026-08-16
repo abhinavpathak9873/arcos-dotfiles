@@ -1,0 +1,41 @@
+configuration {
+  modi: "drun,run,window";
+  show-icons: true;
+  display-drun: "Apps";
+  display-run: "Command";
+  display-window: "Windows";
+  drun-display-format: "{name}";
+  font: "Inter 12";
+  terminal: "kitty";
+}
+
+* {
+  background: #151722f5;
+  background-alt: #202331f5;
+  foreground: #d9dcec;
+  selected: #ca9ee6;
+  border: #414559;
+}
+
+window {
+  width: 640px;
+  border: 1px;
+  border-color: @border;
+  border-radius: 14px;
+  background-color: @background;
+  padding: 18px;
+}
+
+mainbox { spacing: 14px; }
+inputbar {
+  padding: 12px;
+  border-radius: 9px;
+  background-color: @background-alt;
+  children: [ prompt, entry ];
+}
+prompt { color: @selected; padding: 0 12px 0 0; }
+entry { placeholder: "Search applications, commands, and windows…"; }
+listview { lines: 8; columns: 1; spacing: 6px; }
+element { padding: 11px; border-radius: 8px; }
+element selected { background-color: #ca9ee622; text-color: #eadcf2; }
+element-icon { size: 24px; margin: 0 12px 0 0; }

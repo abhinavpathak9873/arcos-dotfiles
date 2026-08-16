@@ -1,0 +1,70 @@
+close_when_open = true
+click_to_close = true
+force_keyboard_focus = true
+as_window = false
+single_click_activation = true
+selection_wrap = true
+theme = "arcos"
+hide_quick_activation = true
+hide_action_hints = false
+resume_last_query = false
+
+[shell]
+exclusive_zone = -1
+layer = "overlay"
+anchor_top = true
+anchor_bottom = true
+anchor_left = true
+anchor_right = true
+
+[placeholders]
+default = { input = "Find a running app, file, setting, calculation, or web result", list = "No matching windows or results" }
+
+[keybinds]
+close = ["Escape"]
+next = ["Down"]
+previous = ["Up"]
+show_actions = ["alt j"]
+
+[providers]
+default = ["windows", "desktopapplications", "files", "calc", "websearch"]
+empty = ["windows"]
+max_results = 36
+
+[providers.actions]
+desktopapplications = [
+  { action = "start", default = true, bind = "Return" },
+  { action = "new_instance", label = "new instance", bind = "ctrl Return" },
+]
+files = [
+  { action = "open", default = true, bind = "Return" },
+  { action = "opendir", label = "open folder", bind = "ctrl Return" },
+]
+websearch = [
+  { action = "search", default = true, bind = "Return" },
+  { action = "open_url", label = "open URL", default = true, bind = "Return" },
+]
+
+[[providers.prefixes]]
+prefix = ">"
+provider = "runner"
+
+[[providers.prefixes]]
+prefix = "/"
+provider = "files"
+
+[[providers.prefixes]]
+prefix = "="
+provider = "calc"
+
+[[providers.prefixes]]
+prefix = "@"
+provider = "websearch"
+
+[[providers.prefixes]]
+prefix = ":"
+provider = "clipboard"
+
+[[providers.prefixes]]
+prefix = "$"
+provider = "windows"

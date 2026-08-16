@@ -1,0 +1,11 @@
+[package]
+name = "arc-inspector"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+arc-protocol = { path = "../arc-protocol" }
+anyhow.workspace = true
+gtk = "0.18"
+serde_json.workspace = true

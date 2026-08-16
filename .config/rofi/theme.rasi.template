@@ -1,0 +1,71 @@
+* {
+  background: {{background}}f5;
+  background-alt: {{background_alt}}f5;
+  foreground: {{foreground}};
+  muted: {{muted}};
+  accent: {{accent}};
+  border: {{border}};
+  background-color: transparent;
+  text-color: @foreground;
+}
+
+window {
+  width: 620px;
+  border: 1px;
+  border-color: @border;
+  border-radius: 10px;
+  background-color: @background;
+  padding: 16px;
+}
+
+mainbox {
+  spacing: 14px;
+  background-color: transparent;
+}
+inputbar {
+  padding: 12px 13px;
+  border-radius: 7px;
+  background-color: @background-alt;
+  children: [ prompt, entry ];
+}
+prompt { color: @accent; padding: 0 12px 0 0; }
+entry {
+  background-color: transparent;
+  text-color: @foreground;
+  placeholder-color: @muted;
+}
+message {
+  padding: 10px;
+  background-color: transparent;
+  text-color: @muted;
+}
+textbox { background-color: transparent; }
+listview {
+  lines: 9;
+  columns: 1;
+  spacing: 7px;
+  scrollbar: false;
+  background-color: transparent;
+}
+element {
+  padding: 10px 11px;
+  border-radius: 6px;
+  background-color: transparent;
+}
+element normal.normal {
+  background-color: transparent;
+  text-color: @foreground;
+}
+element selected.normal {
+  background-color: @background-alt;
+  text-color: @accent;
+}
+element-icon {
+  size: 23px;
+  margin: 0 12px 0 0;
+  background-color: transparent;
+}
+element-text {
+  vertical-align: 0.5;
+  background-color: transparent;
+}

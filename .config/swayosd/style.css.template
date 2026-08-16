@@ -1,0 +1,43 @@
+@define-color background {{background}};
+@define-color panel {{panel}};
+@define-color border {{border}};
+@define-color foreground {{foreground}};
+@define-color muted {{muted}};
+@define-color accent {{accent}};
+
+window#osd {
+  color: @foreground;
+  background: alpha(@panel, 0.95);
+  border: 1px solid alpha(@border, 0.76);
+  border-radius: 999px;
+  box-shadow: 0 10px 34px alpha(black, 0.28);
+}
+
+window#osd #container {
+  margin: 13px 18px;
+}
+
+window#osd image,
+window#osd label {
+  color: @foreground;
+}
+
+window#osd progressbar,
+window#osd segmentedprogress,
+window#osd trough,
+window#osd progress,
+window#osd segment {
+  min-height: 7px;
+  border: none;
+  border-radius: 999px;
+}
+
+window#osd trough,
+window#osd segment {
+  background: alpha(@muted, 0.28);
+}
+
+window#osd progress,
+window#osd segment.active {
+  background: @accent;
+}

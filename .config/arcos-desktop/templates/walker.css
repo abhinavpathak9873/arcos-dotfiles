@@ -1,0 +1,51 @@
+@define-color window_bg_color {{background}};
+@define-color panel_color {{background_alt}};
+@define-color accent_bg_color {{accent}};
+@define-color theme_fg_color {{foreground}};
+@define-color muted_color {{muted}};
+@define-color border_color {{border}};
+@define-color error_bg_color {{critical}};
+
+* { all: unset; font-family: JetBrainsMono Nerd Font, sans-serif; }
+scrollbar { opacity: 0; }
+
+.box-wrapper {
+  min-width: 680px;
+  background: alpha(@window_bg_color, 0.985);
+  padding: 16px;
+  border-radius: 12px;
+  border: 1px solid @border_color;
+  box-shadow: 0 18px 55px rgba(0, 0, 0, 0.42);
+}
+
+.search-container { border-radius: 8px; }
+.input {
+  caret-color: @accent_bg_color;
+  background: @panel_color;
+  padding: 13px 14px;
+  color: @theme_fg_color;
+  border-radius: 8px;
+  border: 1px solid alpha(@border_color, 0.7);
+  font-size: 15px;
+}
+.input placeholder { color: @muted_color; opacity: 0.72; }
+.input selection { background: alpha(@accent_bg_color, 0.34); }
+
+.list { color: @theme_fg_color; margin-top: 10px; }
+.item-box {
+  border-radius: 7px;
+  padding: 10px 11px;
+  transition: 110ms ease;
+}
+child:selected .item-box,
+row:selected .item-box {
+  background: alpha(@accent_bg_color, 0.17);
+  color: @accent_bg_color;
+}
+.item-subtext { font-size: 11px; color: @muted_color; }
+.normal-icons { -gtk-icon-size: 22px; }
+.large-icons { -gtk-icon-size: 38px; }
+.preview { border-left: 1px solid @border_color; padding-left: 14px; color: @theme_fg_color; }
+.keybinds { padding-top: 9px; border-top: 1px solid @border_color; font-size: 11px; color: @muted_color; }
+.keybind-label { padding: 2px 5px; border-radius: 4px; border: 1px solid @border_color; }
+.error { padding: 10px; background: @error_bg_color; color: @window_bg_color; }

@@ -1,0 +1,90 @@
+@define-color background {{background}};
+@define-color background_alt {{background_alt}};
+@define-color panel {{panel}};
+@define-color border {{border}};
+@define-color foreground {{foreground}};
+@define-color muted {{muted}};
+@define-color accent {{accent}};
+@define-color accent_text {{accent_text}};
+
+#arcos-overview {
+  color: @foreground;
+  background: alpha(@background, 0.96);
+}
+
+.overview-root {
+  padding: 54px 64px 42px;
+}
+
+.display-title {
+  color: @foreground;
+  font-family: "JetBrainsMono Nerd Font";
+  font-size: 32px;
+  font-weight: 750;
+}
+
+.subtitle,
+.keyboard-hint,
+.app-subtitle,
+.workspace-count,
+.empty-state {
+  color: @muted;
+  font-size: 12px;
+}
+
+.section-title {
+  color: @foreground;
+  font-size: 18px;
+  font-weight: 700;
+  margin-top: 4px;
+}
+
+.workspace-card,
+.app-row {
+  color: @foreground;
+  background: alpha(@panel, 0.88);
+  border: 1px solid alpha(@border, 0.76);
+  box-shadow: none;
+  transition: 120ms ease-out;
+}
+
+.workspace-card {
+  min-width: 268px;
+  padding: 12px;
+  border-radius: 22px;
+}
+
+.workspace-card:hover,
+.app-row:hover {
+  background: alpha(@accent, 0.15);
+  border-color: alpha(@accent, 0.7);
+}
+
+.workspace-card.selected,
+.app-row.selected {
+  background: alpha(@accent, 0.19);
+  border-color: @accent;
+}
+
+.workspace-title,
+.workspace-heading,
+.app-title {
+  color: @foreground;
+  font-weight: 650;
+}
+
+.workspace-preview {
+  background: alpha(@background_alt, 0.9);
+  border: 1px solid alpha(@border, 0.6);
+  border-radius: 14px;
+}
+
+.workspace-heading {
+  margin: 8px 8px 1px;
+  font-size: 12px;
+}
+
+.app-row {
+  padding: 10px 14px;
+  border-radius: 15px;
+}

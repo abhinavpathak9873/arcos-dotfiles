@@ -1,0 +1,124 @@
+--- a/src/ui/window.rs
++++ b/src/ui/window.rs
+@@ -67,6 +67,7 @@
+ use std::{
+     cell::{Cell, OnceCell, RefCell},
+     collections::HashMap,
++    env,
+     process::{self, Command, Stdio},
+     thread,
+ };
+@@ -469,6 +470,23 @@
+                 actions.iter().find(|a| a.default.unwrap_or(false)).unwrap()
+             };
+ 
++            // An exclusive layer-shell keyboard grab prevents the foreign
++            // toplevel request from changing workspaces while Walker is
++            // visible. Hide Walker first, then activate the saved result.
++            if provider == "windows" && get_config().force_keyboard_focus {
++                let response = get_selected_query_response();
++                let provider = provider.clone();
++                let query = query.to_string();
++                let action = action.clone();
++                quit(app, false);
++                glib::timeout_add_local_once(std::time::Duration::from_millis(100), move || {
++                    if !focus_sway_window(&response) {
++                        activate(response, &provider, &query, &action);
++                    }
++                });
++                return;
++            }
++
+             activate(get_selected_query_response(), &provider, &query, action);
+ 
+             let after = action.after.as_ref().unwrap_or(&AfterAction::Close).clone();
+@@ -541,7 +559,56 @@
+     None
+ }
+ 
+-fn handle_provider(query: &str, k: gdk::Key, m: gdk::ModifierType) -> Option<AfterAction> {
++fn focus_sway_window(response: &Option<QueryResponse>) -> bool {
++    if !env::var("XDG_CURRENT_DESKTOP")
++        .unwrap_or_default()
++        .to_lowercase()
++        .contains("sway")
++    {
++        return false;
++    }
++
++    let Some(item) = response
++        .as_ref()
++        .and_then(|response| response.item.as_ref())
++    else {
++        return false;
++    };
++    let app_id = item.subtext.rsplit(" · ").next().unwrap_or(&item.subtext);
++    let title = &item.text;
++
++    fn escape_criterion(value: &str) -> String {
++        value.replace('\\', "\\\\").replace('"', "\\\"")
++    }
++
++    let app_id = escape_criterion(app_id);
++    let title = escape_criterion(title);
++    // app_id covers native Wayland clients; class covers XWayland clients.
++    for property in ["app_id", "class"] {
++        let criterion = format!("[{property}=\"{app_id}\" title=\"{title}\"]");
++        let Ok(output) = Command::new("swaymsg")
++            .args(["-r", &criterion, "focus"])
++            .stdin(Stdio::null())
++            .stderr(Stdio::null())
++            .output()
++        else {
++            continue;
++        };
++        if output.status.success()
++            && String::from_utf8_lossy(&output.stdout).contains("\"success\":true")
++        {
++            return true;
++        }
++    }
++    false
++}
++
++fn handle_provider(
++    app: &Application,
++    query: &str,
++    k: gdk::Key,
++    m: gdk::ModifierType,
++) -> Option<AfterAction> {
+     let mut keybind_action: Option<Action> = None;
+ 
+     let mut provider = if !get_provider().is_empty() {
+@@ -597,12 +664,18 @@
+     if let Some(a) = keybind_action {
+         if !a.action.starts_with("set:") && !a.action.starts_with("provider:") {
+             if provider == "windows" && get_config().force_keyboard_focus {
+-                println!(
+-                    "windows might potentially not be focused if force_keyboard_focus is true"
+-                );
++                let provider = provider.clone();
++                let query = query.to_string();
++                quit(app, false);
++                glib::timeout_add_local_once(std::time::Duration::from_millis(100), move || {
++                    if !focus_sway_window(&response) {
++                        activate(response, &provider, &query, &a);
++                    }
++                });
++                return Some(AfterAction::Nothing);
+             }
+ 
+-            activate(response, provider.as_str(), &query, &a);
++            activate(response, provider.as_str(), query, &a);
+             return after;
+         }
+     }
+@@ -694,7 +767,7 @@
+             let query = w.input.as_ref().map(Entry::text).unwrap_or_default();
+ 
+             if after.is_none() {
+-                after = handle_provider(&query, k, m)
++                after = handle_provider(&app, &query, k, m)
+             }
+ 
+             if after.is_none() {

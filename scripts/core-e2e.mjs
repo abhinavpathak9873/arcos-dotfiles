@@ -1,0 +1,19 @@
+#!/usr/bin/env node
+import { spawn } from 'node:child_process';
+import { mkdtemp, rm } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import net from 'node:net';
+
+const binary=join(process.cwd(),'target/debug/arc-core');const state=await mkdtemp(join(tmpdir(),'arc-core-e2e-'));let server;
+async function connect(){
+  const runtime=await mkdtemp(join(tmpdir(),'arc-runtime-'));const socket=join(runtime,'arc-core.sock');server=spawn(binary,['serve','--socket',socket],{env:{...process.env,ARC_STATE_DIR:state,ARC_RUNTIME_DIR:runtime},stdio:['ignore','ignore','inherit']});
+  for(let attempt=0;attempt<100;attempt++){try{await new Promise((resolve,reject)=>{const probe=net.createConnection(socket,()=>{probe.end();resolve()});probe.once('error',reject)});break}catch{await new Promise(resolve=>setTimeout(resolve,10))}}
+  const client=net.createConnection(socket);await new Promise((resolve,reject)=>{client.once('connect',resolve);client.once('error',reject)});const pending=new Map();let id=0,buffer='';client.on('data',chunk=>{buffer+=String(chunk);let newline;while((newline=buffer.indexOf('\n'))>=0){const line=buffer.slice(0,newline);buffer=buffer.slice(newline+1);const frame=JSON.parse(line);const operation=pending.get(frame.id);if(!operation)continue;pending.delete(frame.id);frame.error?operation.reject(new Error(frame.error.message)):operation.resolve(frame.result)}});
+  return {request(method,params={}){const requestId=++id;client.write(`${JSON.stringify({jsonrpc:'2.0',id:requestId,method,params})}\n`);return new Promise((resolve,reject)=>pending.set(requestId,{resolve,reject}))},async stop(){client.end();server.kill('SIGTERM');await new Promise(resolve=>server.once('exit',resolve));await rm(runtime,{recursive:true,force:true})}};
+}
+function assert(condition,message){if(!condition)throw new Error(message)}
+try{
+  let core=await connect();const initialized=await core.request('initialize');assert(initialized.protocolVersion===3,'protocol negotiation failed');const catalog=await core.request('apps/query',{query:'files',limit:3});assert(Array.isArray(catalog.apps),'app registry did not return an array');const created=await core.request('rooms/create',{name:'Restart acceptance'});await core.request('evidence/add',{roomId:created.room.id,kind:'webpage',title:'Primary source',uri:'https://example.test/source',sourceUri:'https://example.test/source',claim:'Evidence survives restart'});await core.request('actions/record',{actor:'arc',action:'acceptance.verify',target:created.room.id,outcome:'succeeded',reversible:true,permission:'allowed',detail:'Core E2E mutation'});const utteranceId=crypto.randomUUID();const first=await core.request('conversation/submit',{utteranceId,text:'Implement the fix in this repository'});assert(!first.duplicate&&first.utterance.route.delegate_to_codex,'route or delegation failed');const verified=await core.request('audit/verify');assert(verified.valid&&verified.count===1,'audit verification failed');await core.stop();
+  core=await connect();const restored=await core.request('rooms/get',{roomId:created.room.id});assert(restored.room.evidence.length===1,'room evidence did not survive restart');const duplicate=await core.request('conversation/submit',{utteranceId,text:'Implement the fix in this repository'});assert(duplicate.duplicate,'utterance idempotency did not survive restart');const audit=await core.request('audit/verify');assert(audit.valid&&audit.count===1,'audit did not survive restart');await core.stop();process.stdout.write(`${JSON.stringify({passed:true,protocol:initialized.protocolVersion,transport:initialized.transport,apps:catalog.apps.map(app=>app.name),room:restored.room.name,evidence:restored.room.evidence[0].title,auditReceipts:audit.count,idempotency:true},null,2)}\n`);
+}finally{await rm(state,{recursive:true,force:true})}
