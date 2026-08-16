@@ -30,6 +30,7 @@ let
   hermesPackage = config.services.arcos.hermesPackage;
   aiEnabled = config.services.arcos.enableAi;
   fullAppSuite = config.services.arcos.fullAppSuite;
+  preloadAiModels = config.services.arcos.preloadAiModels;
   arcInstallerFinalize = pkgs.writeShellApplication {
     name = "arc-installer-finalize";
     runtimeInputs = with pkgs; [
@@ -100,8 +101,15 @@ let
           enable = true;
           enableAi = ${if aiEnabled then "true" else "false"};
           fullAppSuite = ${if fullAppSuite then "true" else "false"};
+          preloadAiModels = false;
+          preloadLargeApps = false;
           user = "$username";
-          hermesPackage = ${if hermesPackage == null then "null" else "${hermesPackage}"};
+          hermesPackage = ${
+            if hermesPackage == null || (!aiEnabled && !preloadAiModels) then
+              "null"
+            else
+              "${hermesPackage}"
+          };
           autoLogin = false;
           enableHeadlessOutput = ${if aiEnabled then "true" else "false"};
           softwareRendering = false;

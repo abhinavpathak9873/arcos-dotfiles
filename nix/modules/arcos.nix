@@ -784,6 +784,16 @@ in
       default = true;
       description = "Include the heavier gaming, container, creator, and workstation application suite.";
     };
+    preloadAiModels = lib.mkOption {
+      type = lib.types.bool;
+      default = true;
+      description = "Preload optional Hermes and Kokoro AI payloads into the system closure.";
+    };
+    preloadLargeApps = lib.mkOption {
+      type = lib.types.bool;
+      default = true;
+      description = "Preload large duplicate-purpose applications that remain available on demand.";
+    };
     user = lib.mkOption {
       type = lib.types.str;
       default = "arc";
@@ -1052,10 +1062,14 @@ in
       ++ lib.optionals (!cfg.enableAi && cfg.fullAppSuite) [
         arcosMonitorBrightness
         arcosRecord
+      ]
+      ++ lib.optionals (!cfg.enableAi && cfg.fullAppSuite && cfg.preloadAiModels) [
         kokoro82m
         kokoroTts
       ]
-      ++ lib.optional (cfg.hermesPackage != null) cfg.hermesPackage;
+      ++ lib.optional (
+        cfg.hermesPackage != null && (cfg.enableAi || cfg.preloadAiModels)
+      ) cfg.hermesPackage;
 
     environment.sessionVariables = lib.mkMerge [
       (lib.mkIf cfg.enableHeadlessOutput {

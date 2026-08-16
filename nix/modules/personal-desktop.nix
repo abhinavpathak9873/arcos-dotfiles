@@ -8,7 +8,12 @@
 let
   arcUser = config.services.arcos.user;
   fullAppSuite = config.services.arcos.fullAppSuite;
+  preloadLargeApps = config.services.arcos.preloadLargeApps;
   curaAppImage = pkgs.callPackage ../packages/cura-appimage.nix { };
+  # The regular OBS browser source pulls a complete CEF/Chromium runtime into
+  # the offline image. ArcOS keeps native capture, encoding, streaming, and
+  # plugins while leaving browser sources as an explicit post-install choice.
+  compactObsStudio = pkgs.obs-studio.override { browserSupport = false; };
   systemSettingsDesktop = pkgs.makeDesktopItem {
     name = "arcos-settings";
     desktopName = "System Settings";
@@ -168,14 +173,23 @@ in
     xwayland.enable = true;
     gamemode.enable = fullAppSuite;
     gamescope.enable = fullAppSuite;
-    obs-studio.enable = fullAppSuite;
+    obs-studio = {
+      enable = fullAppSuite;
+      package = compactObsStudio;
+    };
     steam = {
       enable = fullAppSuite;
       remotePlay.openFirewall = true;
       dedicatedServer.openFirewall = true;
       gamescopeSession.enable = true;
-      extraCompatPackages = lib.optionals fullAppSuite [ pkgs.proton-ge-bin ];
+      # Steam manages its supported Proton runtime normally. ProtonUp-Qt stays
+      # installed for users who want a particular GE-Proton build, avoiding a
+      # 1.5 GiB pre-bundled compatibility-tool source in every ArcOS ISO.
+      extraCompatPackages = [ ];
     };
+    # The graphical installer module otherwise contributes Firefox in addition
+    # to ArcOS's selected Chrome browser.
+    firefox.enable = false;
   };
 
   virtualisation = lib.mkIf fullAppSuite {
@@ -320,7 +334,6 @@ in
         gnome-software
         gearlever
         orca-slicer
-        curaAppImage
         openrgb
         docker-compose
         distrobox
@@ -339,7 +352,8 @@ in
         opencode
         claude-code
       ]
-    );
+    )
+    ++ lib.optional (fullAppSuite && preloadLargeApps) curaAppImage;
 
   fonts.packages = with pkgs; [
     noto-fonts

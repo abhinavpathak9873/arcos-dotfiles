@@ -7,10 +7,12 @@
   services.arcos = {
     enableAi = false;
     fullAppSuite = true;
+    preloadAiModels = false;
+    preloadLargeApps = false;
     enableHeadlessOutput = false;
     softwareRendering = lib.mkForce false;
   };
 
   isoImage.volumeID = lib.mkForce "ARCOS_WORKSTATION";
-  image.fileName = lib.mkForce "arcos-universal-v1.3.1.iso";
+  image.fileName = lib.mkForce "arcos-universal-v1.3.2.iso";
 }
